@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE targets PUBLIC "-//RRLIB//DTD make 1.0" "http://rrlib.org/xml/1.0/make.dtd">
+<targets>
+
+  <rrlib name="time">
+    <sources>
+      *.cpp
+      *.h
+    </sources>
+  </rrlib>
+
+</targets>
