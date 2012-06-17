@@ -38,7 +38,6 @@
 #include <cstring>
 #include <sstream>
 #include <stdexcept>
-#include "rrlib/util/patterns/singleton.h"
 
 //----------------------------------------------------------------------
 // Internal includes with ""
@@ -178,13 +177,6 @@ static tTimestamp ToApplicationTime(const tTimestamp& system_time)
   return tTimestamp();
 }
 
-class tTimeMutex : public std::mutex {};
-std::mutex* internal::GetMutex()
-{
-  typedef rrlib::util::tSingletonHolder<tTimeMutex> m;
-  return m::Destroyed() ? NULL : &m::Instance();
-}
-
 tTimestamp Now(bool precise)
 {
   // TODO: implement optimized retrieval of low precision time should this become a performance issue
@@ -198,30 +190,31 @@ tTimeMode GetTimeMode()
 
 void SetTimeSource(const tCustomClock* clock, const tTimestamp& initial_time)
 {
-  if (!internal::GetMutex())
+  try
   {
-    return;
-  }
-  std::lock_guard<std::mutex> lock(*internal::GetMutex());
-  if (clock)
-  {
-    current_clock = clock;
-    current_time.Store(initial_time);
-    if (mode.load() != (int)tTimeMode::CUSTOM_CLOCK)
+    std::lock_guard<std::mutex> lock(internal::tTimeMutex::Instance());
+    if (clock)
     {
-      mode.store((int)tTimeMode::CUSTOM_CLOCK);
-      tTimeStretchingListener::NotifyListeners(tTimeMode::CUSTOM_CLOCK);
+      current_clock = clock;
+      current_time.Store(initial_time);
+      if (mode.load() != (int)tTimeMode::CUSTOM_CLOCK)
+      {
+        mode.store((int)tTimeMode::CUSTOM_CLOCK);
+        tTimeStretchingListener::NotifyListeners(tTimeMode::CUSTOM_CLOCK);
+      }
+      tTimeStretchingListener::NotifyListeners(initial_time);
     }
-    tTimeStretchingListener::NotifyListeners(initial_time);
-  }
-  else
-  {
-    if (mode.load() != (int)tTimeMode::STRETCHED_SYSTEM_TIME)
+    else
     {
-      mode.store((int)tTimeMode::STRETCHED_SYSTEM_TIME);
-      tTimeStretchingListener::NotifyListeners(tTimeMode::STRETCHED_SYSTEM_TIME);
+      if (mode.load() != (int)tTimeMode::STRETCHED_SYSTEM_TIME)
+      {
+        mode.store((int)tTimeMode::STRETCHED_SYSTEM_TIME);
+        tTimeStretchingListener::NotifyListeners(tTimeMode::STRETCHED_SYSTEM_TIME);
+      }
     }
   }
+  catch (std::logic_error &)
+  {}
 }
 
 void SetTimeStretching(unsigned int numerator, unsigned int denominator)
@@ -232,36 +225,38 @@ void SetTimeStretching(unsigned int numerator, unsigned int denominator)
     std::cerr << "Numerator and denominator must lie between 1 and 1000000. Ignoring. Desired numerator: " << numerator << " Desired denominator: " << denominator;
     return;
   }
-  if (!internal::GetMutex())
+
+  try
   {
-    return;
-  }
-
-  // set values
-  std::lock_guard<std::mutex> lock(*internal::GetMutex());
-  assert(denominator != 0);
-  tTimeStretchingParameters params;
-  LoadParameters(params);
-  double new_factor = ((double)numerator) / ((double)denominator);
-  double old_factor = ((double)params.time_scaling_numerator) / ((double)params.time_scaling_denominator);
-  if (new_factor != old_factor)
-  {
-    tTimestamp system_time = std::chrono::high_resolution_clock::now();
-    tTimestamp app_time = ToApplicationTime(system_time);
-
-    params.time_diff = system_time - app_time;
-    params.time_scaling_numerator = numerator;
-    params.time_scaling_denominator = denominator;
-    StoreParameters(params);
-
-    if (mode.load() != (int)tTimeMode::STRETCHED_SYSTEM_TIME)
+    // set values
+    std::lock_guard<std::mutex> lock(internal::tTimeMutex::Instance());
+    assert(denominator != 0);
+    tTimeStretchingParameters params;
+    LoadParameters(params);
+    double new_factor = ((double)numerator) / ((double)denominator);
+    double old_factor = ((double)params.time_scaling_numerator) / ((double)params.time_scaling_denominator);
+    if (new_factor != old_factor)
     {
-      mode.store((int)tTimeMode::STRETCHED_SYSTEM_TIME);
-      tTimeStretchingListener::NotifyListeners(tTimeMode::STRETCHED_SYSTEM_TIME);
-    }
+      tTimestamp system_time = std::chrono::high_resolution_clock::now();
+      tTimestamp app_time = ToApplicationTime(system_time);
 
-    tTimeStretchingListener::NotifyListeners(new_factor > old_factor);
+      params.time_diff = system_time - app_time;
+      params.time_scaling_numerator = numerator;
+      params.time_scaling_denominator = denominator;
+      StoreParameters(params);
+
+      if (mode.load() != (int)tTimeMode::STRETCHED_SYSTEM_TIME)
+      {
+        mode.store((int)tTimeMode::STRETCHED_SYSTEM_TIME);
+        tTimeStretchingListener::NotifyListeners(tTimeMode::STRETCHED_SYSTEM_TIME);
+      }
+
+      tTimeStretchingListener::NotifyListeners(new_factor > old_factor);
+    }
   }
+  catch (std::logic_error &)
+  {}
+
 }
 
 tDuration ToSystemDuration(const tDuration& app_duration)
@@ -473,7 +468,7 @@ std::string ToIsoString(const tDuration& duration)
   std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>(duration);
   std::chrono::nanoseconds nanos = duration - sec;
   time_t tt = sec.count();
-  int  ns = nanos.count();
+  int ns = nanos.count();
 
   tm t;
   memset(&t, 0, sizeof(t));
@@ -529,15 +524,17 @@ std::string ToIsoString(const tDuration& duration)
 
 void tCustomClock::SetApplicationTime(const rrlib::time::tTimestamp& new_time)
 {
-  if (internal::GetMutex())
+  try
   {
-    std::lock_guard<std::mutex> lock(*internal::GetMutex());
+    std::lock_guard<std::mutex> lock(internal::tTimeMutex::Instance());
     if (this == current_clock && mode.load() == (int)tTimeMode::CUSTOM_CLOCK)
     {
       current_time.Store(new_time);
       tTimeStretchingListener::NotifyListeners(new_time);
     }
   }
+  catch (std::logic_error &)
+  {}
 }
 
 //----------------------------------------------------------------------

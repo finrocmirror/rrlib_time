@@ -73,26 +73,30 @@ typedef rrlib::util::tSingletonHolder<std::vector<tTimeStretchingListener*>> tLi
 
 tTimeStretchingListener::tTimeStretchingListener()
 {
-  if (internal::GetMutex() && (!tListenersSingleton::Destroyed()))
+  try
   {
-    std::lock_guard<std::mutex> lock(*internal::GetMutex());
+    std::lock_guard<std::mutex> lock(internal::tTimeMutex::Instance());
     tListenersSingleton::Instance().push_back(this);
   }
+  catch (std::logic_error &)
+  {}
 }
 
 tTimeStretchingListener::~tTimeStretchingListener()
 {
-  if (internal::GetMutex() && (!tListenersSingleton::Destroyed()))
+  try
   {
-    std::lock_guard<std::mutex> lock(*internal::GetMutex());
-    std::vector<tTimeStretchingListener*>& l = tListenersSingleton::Instance();
-    l.erase(std::remove(l.begin(), l.end(), this), l.end());
+    std::lock_guard<std::mutex> lock(internal::tTimeMutex::Instance());
+    std::vector<tTimeStretchingListener*> &listeners = tListenersSingleton::Instance();
+    listeners.erase(std::remove(listeners.begin(), listeners.end(), this), listeners.end());
   }
+  catch (std::logic_error &)
+  {}
 }
 
 void tTimeStretchingListener::NotifyListeners(const tTimestamp& current_time)
 {
-  if (!tListenersSingleton::Destroyed())
+  try
   {
     auto list = tListenersSingleton::Instance();
     for (auto it = list.begin(); it < list.end(); it++)
@@ -100,11 +104,13 @@ void tTimeStretchingListener::NotifyListeners(const tTimestamp& current_time)
       (*it)->TimeChanged(current_time);
     }
   }
+  catch (std::logic_error &)
+  {}
 }
 
 void tTimeStretchingListener::NotifyListeners(rrlib::time::tTimeMode new_mode)
 {
-  if (!tListenersSingleton::Destroyed())
+  try
   {
     auto list = tListenersSingleton::Instance();
     for (auto it = list.begin(); it < list.end(); it++)
@@ -112,11 +118,13 @@ void tTimeStretchingListener::NotifyListeners(rrlib::time::tTimeMode new_mode)
       (*it)->TimeModeChanged(new_mode);
     }
   }
+  catch (std::logic_error &)
+  {}
 }
 
 void tTimeStretchingListener::NotifyListeners(bool app_time_faster)
 {
-  if (!tListenersSingleton::Destroyed())
+  try
   {
     auto list = tListenersSingleton::Instance();
     for (auto it = list.begin(); it < list.end(); it++)
@@ -124,6 +132,8 @@ void tTimeStretchingListener::NotifyListeners(bool app_time_faster)
       (*it)->TimeStretchingFactorChanged(app_time_faster);
     }
   }
+  catch (std::logic_error &)
+  {}
 }
 
 //----------------------------------------------------------------------

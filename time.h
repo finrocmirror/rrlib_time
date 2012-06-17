@@ -39,6 +39,8 @@
 #include <chrono>
 #include <mutex>
 
+#include "rrlib/util/patterns/singleton.h"
+
 //----------------------------------------------------------------------
 // Internal includes with ""
 //----------------------------------------------------------------------
@@ -181,10 +183,13 @@ std::string ToIsoString(const tDuration& duration);
 
 namespace internal
 {
+
 /*!
- * \return Internal mutex that is used throughout rrlib_time library (or NULL after it has been deleted)
+ * Internal mutex that is used throughout rrlib_time library
  */
-std::mutex* GetMutex();
+class tTimeMutexImplementation : public std::mutex {};
+typedef rrlib::util::tSingletonHolder<tTimeMutexImplementation> tTimeMutex;
+
 }
 
 //----------------------------------------------------------------------
