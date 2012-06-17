@@ -34,6 +34,10 @@
 //----------------------------------------------------------------------
 #include <mutex>
 #include <atomic>
+#include <time.h>
+#include <cstring>
+#include <sstream>
+#include <stdexcept>
 #include "rrlib/util/patterns/singleton.h"
 
 //----------------------------------------------------------------------
@@ -277,6 +281,250 @@ tDuration ToSystemDuration(const tDuration& app_duration)
     return tDuration((app_duration.count() / params.time_scaling_denominator) * params.time_scaling_numerator);
   }
   return tDuration();
+}
+
+tTimestamp ParseIsoTimestamp(const std::string& s)
+{
+  tm t;
+  memset(&t, 0, sizeof(t));
+  time_t tz = 0;
+  char charbuf[s.length() + 1];
+  strncpy(charbuf, s.c_str(), s.length() + 1);
+  char* c = strptime(charbuf, "%FT%T", &t);
+  std::chrono::nanoseconds rest;
+  if (c && *c == '.')
+  {
+    char nanos[20];
+    memset(nanos, '0', 9);
+    nanos[9] = 0;
+    for (int i = 0; i < 9; i++)
+    {
+      c++;
+      if (!isdigit(*c))
+      {
+        break;
+      }
+      nanos[i] = *c;
+    }
+    rest = std::chrono::nanoseconds(atoi(nanos));
+  }
+  char* colon = c ? strchr(c, ':') : NULL;
+  if (c && ((*c == '+') || (*c == '-')) && colon)
+  {
+    // we could use global 'timezone' but this is not thread-safe
+    int sign = (*c == '-') ? -1 : 1;
+    *colon = 0;
+    tz = atoi(c) * -3600;
+    colon++;
+    if (*colon == '3')
+    {
+      tz += sign * -1800;
+    }
+  }
+  time_t parsed = timegm(&t) + tz;
+  auto ts2 = std::chrono::system_clock::from_time_t(parsed);
+  return ts2 + std::chrono::duration_cast<tDuration>(rest);
+}
+
+std::string ToIsoString(const tTimestamp& timestamp)
+{
+  char buf[256], time_zone[12], sub_seconds[20];
+  time_t tt = std::chrono::system_clock::to_time_t(timestamp);
+  auto timestamp2 = std::chrono::system_clock::from_time_t(tt);
+  std::chrono::nanoseconds rest = timestamp - timestamp2;
+  if (rest.count() < 0)
+  {
+    rest += std::chrono::seconds(1);
+    tt--;
+    assert(rest.count() > 0);
+  }
+  int  ns = rest.count();
+
+  tm tmp;
+  memset(&tmp, 0, sizeof(tmp));
+  strftime(buf, 256, "%FT%T", localtime_r(&tt, &tmp));
+  strftime(time_zone, 12, "%z", localtime_r(&tt, &tmp));
+  if (strlen(time_zone) > 3)
+  {
+    memmove(&time_zone[4], &time_zone[3], strlen(time_zone) - 2);
+    time_zone[3] = ':';
+  }
+
+  sub_seconds[0] = 0;
+  if (ns != 0)
+  {
+    if (ns % 1000000 == 0)
+    {
+      sprintf(sub_seconds, ".%03d", ns / 1000000);
+    }
+    else if (ns % 1000 == 0)
+    {
+      sprintf(sub_seconds, ".%06d", ns / 1000);
+    }
+    else
+    {
+      sprintf(sub_seconds, ".%09d", ns);
+    }
+  }
+  return std::string(buf) + sub_seconds + time_zone;
+}
+
+tDuration ParseIsoDuration(const std::string& s)
+{
+  tm t;
+  memset(&t, 0, sizeof(t));
+  t.tm_year = 70;
+  t.tm_mday = 1;
+
+  if (s.length() == 0 || s[0] != 'P')
+  {
+    throw std::runtime_error(std::string("Duration string does not start with P: ") + s);
+  }
+  char cs[s.length() + 1];
+  strncpy(cs, s.c_str(), s.length() + 1);
+  size_t len = s.length();
+  std::chrono::nanoseconds rest;
+
+  // start with fractional seconds
+  if (cs[len - 1] == 'S')
+  {
+    char* sec_start = &cs[len - 2];
+    for (; isdigit(*sec_start); sec_start--);
+    if (*sec_start == '.')
+    {
+      char nanos[20];
+      memset(nanos, '0', 9);
+      nanos[9] = 0;
+      strncpy(nanos, sec_start + 1, std::min<size_t>(9, &cs[len - 1] - (sec_start + 1)));
+      rest = std::chrono::nanoseconds(atoi(nanos));
+
+      // cut off fractional seconds from string
+      sec_start[0] = 'S';
+      sec_start[1] = 0;
+    }
+  }
+
+  // parse the rest
+  bool time = false;
+  char* c = &cs[1];
+  while (*c)
+  {
+    if (isdigit(*c))
+    {
+      int num = atoi(c);
+      for (; c && isdigit(*c); c++);
+      if (!c)
+      {
+        throw std::runtime_error(std::string("Invalid duration string: ") + s);
+      }
+      switch (*c)
+      {
+      case 'Y':
+        t.tm_year = 70 + num;
+        break;
+      case 'M':
+        if (!time)
+        {
+          t.tm_mon = num;
+        }
+        else
+        {
+          t.tm_min = num;
+        }
+        break;
+      case 'D':
+        t.tm_mday = num + 1;
+        break;
+      case 'H':
+        if (!time)
+        {
+          throw std::runtime_error(std::string("Invalid duration string: ") + s);
+        }
+        t.tm_hour = num;
+        break;
+      case 'S':
+        if (!time)
+        {
+          throw std::runtime_error(std::string("Invalid duration string: ") + s);
+        }
+        t.tm_sec = num;
+        break;
+      default:
+        throw std::runtime_error(std::string("Invalid duration string: ") + s);
+      }
+    }
+    else if (*c == 'T')
+    {
+      time = true;
+    }
+    else
+    {
+      throw std::runtime_error(std::string("Invalid duration string: ") + s);
+    }
+    c++;
+  }
+
+  time_t parsed = timegm(&t);
+  return std::chrono::seconds(parsed) + std::chrono::duration_cast<tDuration>(rest);
+}
+
+std::string ToIsoString(const tDuration& duration)
+{
+  std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>(duration);
+  std::chrono::nanoseconds nanos = duration - sec;
+  time_t tt = sec.count();
+  int  ns = nanos.count();
+
+  tm t;
+  memset(&t, 0, sizeof(t));
+  gmtime_r(&tt, &t);
+  std::ostringstream oss;
+  oss << 'P';
+  t.tm_year -= 70;
+  if (t.tm_year)
+  {
+    oss << t.tm_year << 'Y';
+  }
+  // we don't add months because length of months varies significantly
+  if (t.tm_yday)
+  {
+    oss << t.tm_yday << 'D';
+  }
+  if (t.tm_hour || t.tm_min || t.tm_sec || ns)
+  {
+    oss << 'T';
+    if (t.tm_hour)
+    {
+      oss << t.tm_hour << 'H';
+    }
+    if (t.tm_min)
+    {
+      oss << t.tm_min << 'M';
+    }
+    if (t.tm_sec || ns)
+    {
+      oss << t.tm_sec;
+      if (ns)
+      {
+        char sub_seconds[20];
+        if (ns % 1000000 == 0)
+        {
+          sprintf(sub_seconds, ".%03d", ns / 1000000);
+        }
+        else if (ns % 1000 == 0)
+        {
+          sprintf(sub_seconds, ".%06d", ns / 1000);
+        }
+        else
+        {
+          sprintf(sub_seconds, ".%09d", ns);
+        }
+        oss << sub_seconds;
+      }
+      oss << 'S';
+    }
+  }
+  return oss.str();
 }
 
 void tCustomClock::SetApplicationTime(const rrlib::time::tTimestamp& new_time)

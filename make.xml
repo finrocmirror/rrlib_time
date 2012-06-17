@@ -8,5 +8,11 @@
       *.h
     </sources>
   </rrlib>
+  
+  <testprogram name="iso_strings">
+    <sources>
+      test/IsoStringTest.cpp
+    </sources>
+  </testprogram>
 
 </targets>

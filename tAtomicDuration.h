@@ -19,22 +19,22 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //----------------------------------------------------------------------
-/*!\file    rrlib/time/tAtomicTimestamp.h
+/*!\file    rrlib/time/tAtomicDuration.h
  *
  * \author  Max Reichardt
  *
- * \date    2012-06-02
+ * \date    2012-06-14
  *
- * \brief   Contains tAtomicTimestamp
+ * \brief   Contains tAtomicDuration
  *
- * \b tAtomicTimestamp
+ * \b tAtomicDuration
  *
- * Atomic time stamp (to safely exchange time stamps among threads)
+ * Atomic duration (to safely exchange durations among threads)
  *
  */
 //----------------------------------------------------------------------
-#ifndef __rrlib__time__tAtomicTimestamp_h__
-#define __rrlib__time__tAtomicTimestamp_h__
+#ifndef __rrlib__time__tAtomicDuration_h__
+#define __rrlib__time__tAtomicDuration_h__
 
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")
@@ -61,11 +61,11 @@ namespace time
 //----------------------------------------------------------------------
 // Class declaration
 //----------------------------------------------------------------------
-//! Atomic time stamp
+//! Atomic duration
 /*!
- * Atomic time stamp (to safely exchange time stamps among threads)
+ * Atomic duration (to safely exchange durations among threads)
  */
-class tAtomicTimestamp
+class tAtomicDuration
 {
 
 //----------------------------------------------------------------------
@@ -73,25 +73,25 @@ class tAtomicTimestamp
 //----------------------------------------------------------------------
 public:
 
-  tAtomicTimestamp(const tTimestamp& timestamp = tTimestamp())
+  tAtomicDuration(const tDuration& duration = tDuration::zero())
   {
-    Store(timestamp);
+    Store(duration);
   }
 
   /*!
    * Obtains value from atomic.
    */
-  tTimestamp Load() const
+  tDuration Load() const
   {
-    return tTimestamp(tDuration(wrapped.load()));
+    return tDuration(wrapped.load());
   }
 
   /*!
    * Stores value to atomic
    */
-  void Store(const tTimestamp& timestamp)
+  void Store(const tDuration& duration)
   {
-    wrapped.store(timestamp.time_since_epoch().count());
+    wrapped.store(duration.count());
   }
 
 //----------------------------------------------------------------------
@@ -103,8 +103,8 @@ private:
   std::atomic<int64_t> wrapped;
 
   // noncopyable (as atomics generally are)
-  tAtomicTimestamp(const tAtomicTimestamp&) = delete;
-  tAtomicTimestamp& operator=(const tAtomicTimestamp&) = delete;
+  tAtomicDuration(const tAtomicDuration&) = delete;
+  tAtomicDuration& operator=(const tAtomicDuration&) = delete;
 };
 
 //----------------------------------------------------------------------

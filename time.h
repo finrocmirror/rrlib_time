@@ -62,7 +62,7 @@ typedef std::chrono::high_resolution_clock tBaseClock;
 
 //! Time stamp type
 /*!
- * std::chrono::time_point point type returned by clocks.
+ * std::chrono::time_point type returned by clocks.
  * It should be used in most parts of applications (e.g. Timestamps, Finroc ports).
  */
 typedef tBaseClock::time_point tTimestamp;
@@ -86,7 +86,7 @@ enum class tTimeMode
 {
   SYSTEM_TIME,            //!< "application time" is identical to system time
   STRETCHED_SYSTEM_TIME,  //!< "application time" is system time with some sort of time-stretching applied
-  CUSTOM_CLOCK        //!< "application time" is set by an external entity ("custom clock")
+  CUSTOM_CLOCK            //!< "application time" is set by an external entity ("custom clock")
 };
 
 class tCustomClock;
@@ -146,6 +146,38 @@ void SetTimeStretching(unsigned int numerator, unsigned int denominator);
  */
 tDuration ToSystemDuration(const tDuration& app_duration);
 
+/*!
+ * Parses timestamp in ISO 8601 string representation
+ *
+ * \param s Timestamp as ISO 8601 string
+ * \return Timestamp
+ */
+tTimestamp ParseIsoTimestamp(const std::string& s);
+
+/*!
+ * Turns Timestamp into string representation following ISO 8601 (or W3C XML Schema 1.0 specification)
+ *
+ * \param timestamp Timestamp to convert
+ * \return ISO 8601 representation of timestamp
+ */
+std::string ToIsoString(const tTimestamp& timestamp);
+
+/*!
+ * Parses duration in ISO 8601 string representation
+ * (throws exception if string cannot be parsed)
+ *
+ * \param s Duration as ISO 8601 string
+ * \return Duration
+ */
+tDuration ParseIsoDuration(const std::string& s);
+
+/*!
+ * Turns Duration into string representation following ISO 8601 (or W3C XML Schema 1.0 specification)
+ *
+ * \param duration Duration to convert
+ * \return ISO 8601 representation of duration
+ */
+std::string ToIsoString(const tDuration& duration);
 
 namespace internal
 {
