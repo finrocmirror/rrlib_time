@@ -291,7 +291,7 @@ tTimestamp ParseIsoTimestamp(const std::string& s)
   char charbuf[s.length() + 1];
   strncpy(charbuf, s.c_str(), s.length() + 1);
   char* c = strptime(charbuf, "%FT%T", &t);
-  std::chrono::nanoseconds rest;
+  std::chrono::nanoseconds rest(0);
   if (c && *c == '.')
   {
     char nanos[20];
@@ -383,7 +383,7 @@ tDuration ParseIsoDuration(const std::string& s)
   char cs[s.length() + 1];
   strncpy(cs, s.c_str(), s.length() + 1);
   size_t len = s.length();
-  std::chrono::nanoseconds rest;
+  std::chrono::nanoseconds rest(0);
 
   // start with fractional seconds
   if (cs[len - 1] == 'S')
