@@ -522,6 +522,41 @@ std::string ToIsoString(const tDuration& duration)
   return oss.str();
 }
 
+std::string ToString(const std::chrono::nanoseconds& ns)
+{
+  std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(ns);
+  std::chrono::nanoseconds rest = ns - ms;
+  char buf[1000];
+  if (rest.count() != 0 || ms.count() != 0)
+  {
+    if (rest.count() % 1000 == 0)
+    {
+      sprintf(buf, "%ld.%03ld ms", ms.count(), rest.count() / 1000);
+      return buf;
+    }
+    sprintf(buf, "%ld.%06ld ms", ms.count(), rest.count());
+    return buf;
+  }
+  std::chrono::minutes mins = std::chrono::duration_cast<std::chrono::minutes>(ns);
+  rest = ns - mins;
+  if (rest.count() != 0)
+  {
+    sprintf(buf, "%ld s", std::chrono::duration_cast<std::chrono::seconds>(ns).count());
+    return buf;
+  }
+  std::chrono::hours hours = std::chrono::duration_cast<std::chrono::hours>(ns);
+  rest = ns - hours;
+  if (rest.count() != 0)
+  {
+    int c = std::chrono::duration_cast<std::chrono::minutes>(ns).count();
+    sprintf(buf, "%d minute%s", c, c > 1 ? "s" : "");
+    return buf;
+  }
+  int c = std::chrono::duration_cast<std::chrono::hours>(ns).count();
+  sprintf(buf, "%d hour%s", c, c > 1 ? "s" : "");
+  return buf;
+}
+
 void tCustomClock::SetApplicationTime(const rrlib::time::tTimestamp& new_time)
 {
   try

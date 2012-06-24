@@ -181,6 +181,14 @@ tDuration ParseIsoDuration(const std::string& s);
  */
 std::string ToIsoString(const tDuration& duration);
 
+/*!
+ * Turns duration into a simple string (number + unit)
+ *
+ * \param duration Duration to convert
+ * \return Simple string representation of duration
+ */
+std::string ToString(const std::chrono::nanoseconds& ns);
+
 namespace internal
 {
 

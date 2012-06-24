@@ -70,6 +70,20 @@ namespace time
 
 typedef rrlib::util::tSingletonHolder<std::vector<tTimeStretchingListener*>> tListenersSingleton;
 
+template <typename tLambdaFunction>
+static void NotifyListenersImpl(tLambdaFunction f)
+{
+  try
+  {
+    auto list = tListenersSingleton::Instance();
+    for (auto it = list.begin(); it < list.end(); it++)
+    {
+      f(**it);
+    }
+  }
+  catch (std::logic_error &)
+  {}
+}
 
 tTimeStretchingListener::tTimeStretchingListener()
 {
@@ -96,44 +110,26 @@ tTimeStretchingListener::~tTimeStretchingListener()
 
 void tTimeStretchingListener::NotifyListeners(const tTimestamp& current_time)
 {
-  try
+  NotifyListenersImpl([&](tTimeStretchingListener & l)
   {
-    auto list = tListenersSingleton::Instance();
-    for (auto it = list.begin(); it < list.end(); it++)
-    {
-      (*it)->TimeChanged(current_time);
-    }
-  }
-  catch (std::logic_error &)
-  {}
+    l.TimeChanged(current_time);
+  });
 }
 
 void tTimeStretchingListener::NotifyListeners(rrlib::time::tTimeMode new_mode)
 {
-  try
+  NotifyListenersImpl([&](tTimeStretchingListener & l)
   {
-    auto list = tListenersSingleton::Instance();
-    for (auto it = list.begin(); it < list.end(); it++)
-    {
-      (*it)->TimeModeChanged(new_mode);
-    }
-  }
-  catch (std::logic_error &)
-  {}
+    l.TimeModeChanged(new_mode);
+  });
 }
 
 void tTimeStretchingListener::NotifyListeners(bool app_time_faster)
 {
-  try
+  NotifyListenersImpl([&](tTimeStretchingListener & l)
   {
-    auto list = tListenersSingleton::Instance();
-    for (auto it = list.begin(); it < list.end(); it++)
-    {
-      (*it)->TimeStretchingFactorChanged(app_time_faster);
-    }
-  }
-  catch (std::logic_error &)
-  {}
+    l.TimeStretchingFactorChanged(app_time_faster);
+  });
 }
 
 //----------------------------------------------------------------------
