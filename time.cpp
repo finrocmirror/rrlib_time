@@ -531,17 +531,17 @@ std::string ToString(const std::chrono::nanoseconds& ns)
   {
     if (rest.count() % 1000 == 0)
     {
-      sprintf(buf, "%ld.%03ld ms", ms.count(), rest.count() / 1000);
+      sprintf(buf, "%lld.%03lld ms", static_cast<long long int>(ms.count()), static_cast<long long int>(rest.count() / 1000));
       return buf;
     }
-    sprintf(buf, "%ld.%06ld ms", ms.count(), rest.count());
+    sprintf(buf, "%lld.%06lld ms", static_cast<long long int>(ms.count()), static_cast<long long int>(rest.count()));
     return buf;
   }
   std::chrono::minutes mins = std::chrono::duration_cast<std::chrono::minutes>(ns);
   rest = ns - mins;
   if (rest.count() != 0)
   {
-    sprintf(buf, "%ld s", std::chrono::duration_cast<std::chrono::seconds>(ns).count());
+    sprintf(buf, "%lld s", static_cast<long long int>(std::chrono::duration_cast<std::chrono::seconds>(ns).count()));
     return buf;
   }
   std::chrono::hours hours = std::chrono::duration_cast<std::chrono::hours>(ns);
