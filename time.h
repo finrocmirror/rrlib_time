@@ -187,7 +187,7 @@ std::string ToIsoString(const tDuration& duration);
  * \param duration Duration to convert
  * \return Simple string representation of duration
  */
-std::string ToString(const std::chrono::nanoseconds& ns);
+std::string ToString(std::chrono::nanoseconds ns);
 
 namespace internal
 {

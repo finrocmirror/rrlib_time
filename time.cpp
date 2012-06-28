@@ -522,8 +522,19 @@ std::string ToIsoString(const tDuration& duration)
   return oss.str();
 }
 
-std::string ToString(const std::chrono::nanoseconds& ns)
+std::string ToString(std::chrono::nanoseconds ns)
 {
+  if (ns.count() == 0)
+  {
+    return "0 ms";
+  }
+  const char* sign = "";
+  if (ns.count() < 0)
+  {
+    sign = "-";
+    ns = -ns;
+  }
+
   std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(ns);
   std::chrono::nanoseconds rest = ns - ms;
   char buf[1000];
@@ -531,17 +542,17 @@ std::string ToString(const std::chrono::nanoseconds& ns)
   {
     if (rest.count() % 1000 == 0)
     {
-      sprintf(buf, "%lld.%03lld ms", static_cast<long long int>(ms.count()), static_cast<long long int>(rest.count() / 1000));
+      sprintf(buf, "%s%lld.%03lld ms", sign, static_cast<long long int>(ms.count()), static_cast<long long int>(rest.count() / 1000));
       return buf;
     }
-    sprintf(buf, "%lld.%06lld ms", static_cast<long long int>(ms.count()), static_cast<long long int>(rest.count()));
+    sprintf(buf, "%s%lld.%06lld ms", sign, static_cast<long long int>(ms.count()), static_cast<long long int>(rest.count()));
     return buf;
   }
   std::chrono::minutes mins = std::chrono::duration_cast<std::chrono::minutes>(ns);
   rest = ns - mins;
   if (rest.count() != 0)
   {
-    sprintf(buf, "%lld s", static_cast<long long int>(std::chrono::duration_cast<std::chrono::seconds>(ns).count()));
+    sprintf(buf, "%s%lld s", sign, static_cast<long long int>(std::chrono::duration_cast<std::chrono::seconds>(ns).count()));
     return buf;
   }
   std::chrono::hours hours = std::chrono::duration_cast<std::chrono::hours>(ns);
@@ -549,11 +560,11 @@ std::string ToString(const std::chrono::nanoseconds& ns)
   if (rest.count() != 0)
   {
     int c = std::chrono::duration_cast<std::chrono::minutes>(ns).count();
-    sprintf(buf, "%d minute%s", c, c > 1 ? "s" : "");
+    sprintf(buf, "%s%d minute%s", sign, c, c > 1 ? "s" : "");
     return buf;
   }
   int c = std::chrono::duration_cast<std::chrono::hours>(ns).count();
-  sprintf(buf, "%d hour%s", c, c > 1 ? "s" : "");
+  sprintf(buf, "%s%d hour%s", sign, c, c > 1 ? "s" : "");
   return buf;
 }
 
