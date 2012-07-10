@@ -39,7 +39,7 @@
 #include <chrono>
 #include <mutex>
 
-#include "rrlib/util/patterns/singleton.h"
+#include "rrlib/design_patterns/singleton.h"
 
 //----------------------------------------------------------------------
 // Internal includes with ""
@@ -196,7 +196,7 @@ namespace internal
  * Internal mutex that is used throughout rrlib_time library
  */
 class tTimeMutexImplementation : public std::mutex {};
-typedef rrlib::util::tSingletonHolder<tTimeMutexImplementation> tTimeMutex;
+typedef rrlib::design_patterns::tSingletonHolder<tTimeMutexImplementation> tTimeMutex;
 
 }
 

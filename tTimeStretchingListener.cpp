@@ -33,7 +33,7 @@
 // External includes (system with <>, local with "")
 //----------------------------------------------------------------------
 #include <algorithm>
-#include "rrlib/util/patterns/singleton.h"
+#include "rrlib/design_patterns/singleton.h"
 
 //----------------------------------------------------------------------
 // Internal includes with ""
@@ -68,7 +68,7 @@ namespace time
 // Implementation
 //----------------------------------------------------------------------
 
-typedef rrlib::util::tSingletonHolder<std::vector<tTimeStretchingListener*>> tListenersSingleton;
+typedef rrlib::design_patterns::tSingletonHolder<std::vector<tTimeStretchingListener*>> tListenersSingleton;
 
 template <typename tLambdaFunction>
 static void NotifyListenersImpl(tLambdaFunction f)
