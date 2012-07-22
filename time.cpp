@@ -568,6 +568,11 @@ std::string ToString(std::chrono::nanoseconds ns)
   return buf;
 }
 
+bool tCustomClock::IsCurrentTimeSource() const
+{
+  return mode.load() == static_cast<int>(tTimeMode::CUSTOM_CLOCK) && current_clock == this;
+}
+
 void tCustomClock::SetApplicationTime(const rrlib::time::tTimestamp& new_time)
 {
   try

@@ -73,9 +73,17 @@ namespace time
  */
 class tCustomClock
 {
-  // noncopyable (otherwise clock could not be identified by pointer)
-  tCustomClock(const tCustomClock&) = delete;
-  tCustomClock& operator=(const tCustomClock&) = delete;
+//----------------------------------------------------------------------
+// Public methods and typedefs
+//----------------------------------------------------------------------
+public:
+
+  tCustomClock() {}
+
+  /*!
+   * \return True, if this is the current time source for application time
+   */
+  bool IsCurrentTimeSource() const;
 
 //----------------------------------------------------------------------
 // Protected methods and typedefs
@@ -88,6 +96,12 @@ protected:
    * \param new_time New "application time".
    */
   void SetApplicationTime(const rrlib::time::tTimestamp& new_time);
+
+private:
+
+  // noncopyable (otherwise clock could not be identified by pointer)
+  tCustomClock(const tCustomClock&) = delete;
+  tCustomClock& operator=(const tCustomClock&) = delete;
 };
 
 //----------------------------------------------------------------------
