@@ -136,8 +136,8 @@ static void LoadParameters(tTimeStretchingParameters& params)
     }
   }
 
-  params.time_scaling_numerator = (helper.longs[0] >> 32) && cNUMERATOR_MASK;
-  params.time_scaling_denominator = (helper.longs[1] >> 32) && cNUMERATOR_MASK;
+  params.time_scaling_numerator = (helper.longs[0] >> 32) & cNUMERATOR_MASK;
+  params.time_scaling_denominator = (helper.longs[1] >> 32) & cNUMERATOR_MASK;
   params.time_diff = tDuration((helper.longs[0] << 32) | (helper.longs[1] & 0xFFFFFFFFLL));
 }
 
