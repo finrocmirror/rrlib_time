@@ -42,6 +42,11 @@ int main(int, char**)
   test1 = ToIsoString(tp);
   printf("Parsed is: %s\n", test1.c_str());
 
+  s = "2004-06-14T23:34:30";
+  tp = ParseIsoTimestamp(s);
+  test1 = ToIsoString(tp);
+  printf("Parsed is: %s\n", test1.c_str());
+
   s = "2012-06-16T15:20:26+03:00";
   tp = ParseIsoTimestamp(s);
   test1 = ToIsoString(tp);
@@ -88,6 +93,12 @@ int main(int, char**)
   dur = ParseIsoDuration(s);
   test1 = ToIsoString(dur);
   printf("Duration is: %s\n", test1.c_str());
+
+  tTimestamp timestamp = Now();
+  std::string iso_string = ToIsoString(timestamp);
+  tTimestamp timestamp_parsed = ParseIsoTimestamp(iso_string);
+  printf("Timestamp 1: %s\n", ToIsoString(timestamp).c_str());
+  printf("Timestamp 2: %s\n", ToIsoString(timestamp_parsed).c_str());
 
   return 0;
 }

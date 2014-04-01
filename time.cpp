@@ -289,10 +289,9 @@ tTimestamp ParseIsoTimestamp(const std::string& s)
   std::chrono::nanoseconds rest(0);
   if (c && *c == '.')
   {
-    char nanos[20];
+    char nanos[32];
     memset(nanos, '0', 9);
-    nanos[9] = 0;
-    for (int i = 0; i < 9; i++)
+    for (int i = 0; i < sizeof(nanos); i++)
     {
       c++;
       if (!isdigit(*c))
@@ -301,9 +300,9 @@ tTimestamp ParseIsoTimestamp(const std::string& s)
       }
       nanos[i] = *c;
     }
+    nanos[9] = 0;
     rest = std::chrono::nanoseconds(atoi(nanos));
   }
-  c++;
   char* colon = c ? strchr(c, ':') : NULL;
   if (c && ((*c == '+') || (*c == '-')) && colon)
   {
