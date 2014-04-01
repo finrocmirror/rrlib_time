@@ -303,6 +303,7 @@ tTimestamp ParseIsoTimestamp(const std::string& s)
     }
     rest = std::chrono::nanoseconds(atoi(nanos));
   }
+  c++;
   char* colon = c ? strchr(c, ':') : NULL;
   if (c && ((*c == '+') || (*c == '-')) && colon)
   {
@@ -566,6 +567,17 @@ std::string ToString(std::chrono::nanoseconds ns)
   int c = std::chrono::duration_cast<std::chrono::hours>(ns).count();
   sprintf(buf, "%s%d hour%s", sign, c, c > 1 ? "s" : "");
   return buf;
+}
+
+tTimestamp GetLastFullHour(const tTimestamp &timestamp)
+{
+  std::time_t input_time = std::chrono::system_clock::to_time_t(timestamp);
+  std::tm full_hour_time;
+  localtime_r(&input_time, &full_hour_time);
+  full_hour_time.tm_sec = 0;
+  full_hour_time.tm_min = 0;
+  std::time_t output_time = timegm(&full_hour_time);
+  return std::chrono::system_clock::from_time_t(output_time);
 }
 
 bool tCustomClock::IsCurrentTimeSource() const

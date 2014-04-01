@@ -156,6 +156,7 @@ tDuration ToSystemDuration(const tDuration& app_duration);
  */
 tTimestamp ParseIsoTimestamp(const std::string& s);
 
+
 /*!
  * Turns Timestamp into string representation following ISO 8601 (or W3C XML Schema 1.0 specification)
  *
@@ -188,6 +189,15 @@ std::string ToIsoString(const tDuration& duration);
  * \return Simple string representation of duration
  */
 std::string ToString(std::chrono::nanoseconds ns);
+
+/*!
+ * Extracts the last full hour from a given timestamp
+ *
+ * \param timestamp Timestamp to convert
+ * \return timestamp of the last full hour
+ */
+tTimestamp GetLastFullHour(const tTimestamp& timestamp);
+
 
 namespace internal
 {
