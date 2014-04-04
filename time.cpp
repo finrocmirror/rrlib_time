@@ -291,7 +291,7 @@ tTimestamp ParseIsoTimestamp(const std::string& s)
   {
     char nanos[32];
     memset(nanos, '0', 9);
-    for (int i = 0; i < sizeof(nanos); i++)
+    for (unsigned int i = 0; i < sizeof(nanos); i++)
     {
       c++;
       if (!isdigit(*c))
@@ -571,8 +571,8 @@ std::string ToString(std::chrono::nanoseconds ns)
 tTimestamp GetLastFullHour(const tTimestamp &timestamp)
 {
   std::time_t input_time = std::chrono::system_clock::to_time_t(timestamp);
-  std::tm full_hour_time;
-  localtime_r(&input_time, &full_hour_time);
+  tm full_hour_time = {0};
+  gmtime_r(&input_time, &full_hour_time);
   full_hour_time.tm_sec = 0;
   full_hour_time.tm_min = 0;
   std::time_t output_time = timegm(&full_hour_time);

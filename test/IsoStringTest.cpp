@@ -100,5 +100,8 @@ int main(int, char**)
   printf("Timestamp 1: %s\n", ToIsoString(timestamp).c_str());
   printf("Timestamp 2: %s\n", ToIsoString(timestamp_parsed).c_str());
 
+  printf("Last full hour: %s\n", ToIsoString(GetLastFullHour(Now())).c_str());
+
+
   return 0;
 }

@@ -14,5 +14,11 @@
       test/IsoStringTest.cpp
     </sources>
   </testprogram>
+  
+  <unittest name="time">
+    <sources>
+      test/unit_test_time.cpp
+    </sources>
+  </unittest>
 
 </targets>
