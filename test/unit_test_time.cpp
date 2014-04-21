@@ -153,7 +153,8 @@ private:
     // GetLastFullHour Test
     tTimestamp iso_timestamp_last_hour1 = GetLastFullHour(iso_timestamp_from_string);
     dur = iso_timestamp_from_string - iso_timestamp_last_hour1;
-    RRLIB_UNIT_TESTS_EQUALITY_MESSAGE("Duration should be PT14M14.141414141S", std::string("PT14M14.141414141S"), ToIsoString(dur));
+    tDuration expected_duration = std::chrono::duration_cast<tDuration>(std::chrono::minutes(14) + std::chrono::seconds(14) + std::chrono::nanoseconds(141414141));
+    RRLIB_UNIT_TESTS_EQUALITY_MESSAGE("Duration should be PT14M14.141414141S", ToIsoString(expected_duration), ToIsoString(dur));
 
     tTimestamp iso_timestamp_last_hour2 = GetLastFullHour(iso_timestamp_even_shorter_from_string);
     dur = iso_timestamp_even_shorter_from_string - iso_timestamp_last_hour2;
