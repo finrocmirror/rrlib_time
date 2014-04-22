@@ -159,6 +159,24 @@ private:
     tTimestamp iso_timestamp_last_hour2 = GetLastFullHour(iso_timestamp_even_shorter_from_string);
     dur = iso_timestamp_even_shorter_from_string - iso_timestamp_last_hour2;
     RRLIB_UNIT_TESTS_EQUALITY_MESSAGE("Duration should be PT14M14S", std::string("PT14M14S"), ToIsoString(dur));
+
+    // ParseNmeaTimestamp Test
+    {
+      tTimestamp nmea_timestamp = ParseNmeaTimestamp("140512", "170414");
+      tTimestamp reference_timestamp = ParseIsoTimestamp("2014-04-17T14:05:12+00:00");
+      RRLIB_UNIT_TESTS_EQUALITY_MESSAGE("Timestamps should be equal", ToIsoString(reference_timestamp), ToIsoString(nmea_timestamp));
+    }
+    {
+      tTimestamp nmea_timestamp = ParseNmeaTimestamp("140512.123", "170414");
+      tTimestamp reference_timestamp = ParseIsoTimestamp("2014-04-17T14:05:12.123+00:00");
+      RRLIB_UNIT_TESTS_EQUALITY_MESSAGE("Timestamps should be equal", ToIsoString(reference_timestamp), ToIsoString(nmea_timestamp));
+    }
+    {
+      tTimestamp nmea_timestamp = ParseNmeaTimestamp("140512.5", "170414");
+      tTimestamp reference_timestamp = ParseIsoTimestamp("2014-04-17T14:05:12.5+00:00");
+      RRLIB_UNIT_TESTS_EQUALITY_MESSAGE("Timestamps should be equal", ToIsoString(reference_timestamp), ToIsoString(nmea_timestamp));
+    }
+
   }
 };
 

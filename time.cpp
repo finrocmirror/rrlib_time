@@ -325,6 +325,9 @@ tTimestamp ParseNmeaTimestamp(const std::string& nmea_time, const std::string& n
 {
   tm t;
   memset(&t, 0, sizeof(t));
+  char buffer[10];
+  memset(buffer, 0, sizeof(buffer));
+
   // nmea_time = HHMMSS or HHMMSS.SSS
   // nmea_date = DDMMYY
   t.tm_mday = atoi(nmea_date.substr(0, 2).c_str());
@@ -334,8 +337,15 @@ tTimestamp ParseNmeaTimestamp(const std::string& nmea_time, const std::string& n
   t.tm_min = atoi(nmea_time.substr(2, 2).c_str());
   t.tm_sec = atoi(nmea_time.substr(4, 2).c_str());
   std::chrono::milliseconds rest(0);
-  if (nmea_time.length() == 10)
-    rest = std::chrono::milliseconds(atoi(nmea_time.substr(7, 3).c_str()));
+  if (nmea_time.length() > 7)
+  {
+    for (size_t i = 0; i < 3; i++)
+    {
+      buffer[i] = (nmea_time.length() > (i + 7)) ? nmea_time[i + 7] : '0';
+    }
+    buffer[3] = 0;
+    rest = std::chrono::milliseconds(atoi(buffer));
+  }
   auto ts = std::chrono::system_clock::from_time_t(timegm(&t));
   return ts + std::chrono::duration_cast<tDuration>(rest);
 }
