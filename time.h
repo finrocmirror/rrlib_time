@@ -158,6 +158,16 @@ tTimestamp ParseIsoTimestamp(const std::string& s);
 
 
 /*!
+ * Parses GPS timestamp in NMEA-0183 GPRMC representation
+ *
+ * \param nmea_time GPS time according to NMEA-0183 GPRMC representation (HHMMSS{.SSS})
+ * \param nmea_date GPS date according to NMEA-0183 GPRMC representation (DDMMYY)
+ * \return Timestamp
+ */
+tTimestamp ParseNmeaTimestamp(const std::string& nmea_time, const std::string& nmea_date);
+
+
+/*!
  * Turns Timestamp into string representation following ISO 8601 (or W3C XML Schema 1.0 specification)
  *
  * \param timestamp Timestamp to convert

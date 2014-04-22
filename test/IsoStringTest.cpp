@@ -102,6 +102,11 @@ int main(int, char**)
 
   printf("Last full hour: %s\n", ToIsoString(GetLastFullHour(Now())).c_str());
 
+  std::pair<std::string, std::string> nmea("140512", "170414");
+  printf("nmea time is: %s\n", ToIsoString(ParseNmeaTimestamp(nmea.first, nmea.second)).c_str());
+  nmea.first = "133212.123";
+  printf("nmea time is: %s\n", ToIsoString(ParseNmeaTimestamp(nmea.first, nmea.second)).c_str());
+  printf("diff(nmea - local time) = %lli us\n", std::chrono::duration_cast<std::chrono::microseconds>(ParseNmeaTimestamp(nmea.first, nmea.second) - Now()).count());
 
   return 0;
 }

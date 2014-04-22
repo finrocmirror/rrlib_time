@@ -321,6 +321,25 @@ tTimestamp ParseIsoTimestamp(const std::string& s)
   return ts2 + std::chrono::duration_cast<tDuration>(rest);
 }
 
+tTimestamp ParseNmeaTimestamp(const std::string& nmea_time, const std::string& nmea_date)
+{
+  tm t;
+  memset(&t, 0, sizeof(t));
+  // nmea_time = HHMMSS or HHMMSS.SSS
+  // nmea_date = DDMMYY
+  t.tm_mday = atoi(nmea_date.substr(0, 2).c_str());
+  t.tm_mon = atoi(nmea_date.substr(2, 2).c_str()) - 1; // nmea month = [1..12], tm_mon = [0..11]
+  t.tm_year = atoi(nmea_date.substr(4, 2).c_str()) + 100; // nmea year since 2000, UTC since 1900
+  t.tm_hour = atoi(nmea_time.substr(0, 2).c_str());
+  t.tm_min = atoi(nmea_time.substr(2, 2).c_str());
+  t.tm_sec = atoi(nmea_time.substr(4, 2).c_str());
+  std::chrono::milliseconds rest(0);
+  if (nmea_time.length() == 10)
+    rest = std::chrono::milliseconds(atoi(nmea_time.substr(7, 3).c_str()));
+  auto ts = std::chrono::system_clock::from_time_t(timegm(&t));
+  return ts + std::chrono::duration_cast<tDuration>(rest);
+}
+
 std::string ToIsoString(const tTimestamp& timestamp)
 {
   char buf[256], time_zone[12], sub_seconds[20];
