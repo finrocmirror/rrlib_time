@@ -19,7 +19,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 //----------------------------------------------------------------------
-/*!\file    rrlib/math/test/unit_test_time.cpp
+/*!\file    rrlib/time/tests/unit_test_time.cpp
  *
  * \author  Patrick Fleischmann
  * \author  Max Reichardt
