@@ -1,24 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE targets PUBLIC "-//RRLIB//DTD make 1.0" "http://rrlib.org/xml/1.0/make.dtd">
+<!DOCTYPE targets PUBLIC "-//FINROC//DTD make 14.05" "http://finroc.org/xml/14.05/make.dtd">
 <targets>
 
-  <rrlib>
+  <library>
     <sources>
       *.cpp
       *.h
     </sources>
-  </rrlib>
+  </library>
   
-  <testprogram name="iso_strings">
+  <program name="time">
     <sources>
-      test/IsoStringTest.cpp
+      tests/unit_test_time.cpp
     </sources>
-  </testprogram>
-  
-  <unittest name="time">
-    <sources>
-      test/unit_test_time.cpp
-    </sources>
-  </unittest>
+  </program>
 
 </targets>

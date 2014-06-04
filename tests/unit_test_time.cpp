@@ -22,6 +22,7 @@
 /*!\file    rrlib/math/test/unit_test_time.cpp
  *
  * \author  Patrick Fleischmann
+ * \author  Max Reichardt
  *
  * \date    2014-04-04
  *
@@ -82,6 +83,7 @@ private:
 
   virtual void Test()
   {
+    std::cout << " (Now is: " << ToIsoString(std::chrono::system_clock::now()) << ") ";
 
     // ParseIsoTimestamp and ToIsoString tests
     std::string iso_timestamp = "2014-04-04T14:14:14.141414141+02:00";
