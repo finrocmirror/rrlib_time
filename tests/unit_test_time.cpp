@@ -28,11 +28,10 @@
  *
  */
 //----------------------------------------------------------------------
+
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")
 //----------------------------------------------------------------------
-#include <cstdlib>
-#include <iostream>
 
 //----------------------------------------------------------------------
 // Internal includes with ""
@@ -40,8 +39,6 @@
 #include "rrlib/util/tUnitTestSuite.h"
 
 #include "rrlib/time/time.h"
-
-#include "rrlib/logging/configuration.h"
 
 //----------------------------------------------------------------------
 // Debugging
@@ -51,7 +48,14 @@
 //----------------------------------------------------------------------
 // Namespace usage
 //----------------------------------------------------------------------
-using namespace rrlib::time;
+
+//----------------------------------------------------------------------
+// Namespace declaration
+//----------------------------------------------------------------------
+namespace rrlib
+{
+namespace time
+{
 
 //----------------------------------------------------------------------
 // Forward declarations / typedefs / enums
@@ -64,22 +68,13 @@ using namespace rrlib::time;
 //----------------------------------------------------------------------
 // Implementation
 //----------------------------------------------------------------------
-class tTestTime : public rrlib::util::tUnitTestSuite
+class TestTime : public util::tUnitTestSuite
 {
-  RRLIB_UNIT_TESTS_BEGIN_SUITE(tTestTime);
+  RRLIB_UNIT_TESTS_BEGIN_SUITE(TestTime);
   RRLIB_UNIT_TESTS_ADD_TEST(Test);
   RRLIB_UNIT_TESTS_END_SUITE;
 
 private:
-
-  virtual void InitializeTests()
-  {
-
-  }
-
-  virtual void CleanUp()
-  {
-  }
 
   virtual void Test()
   {
@@ -182,4 +177,10 @@ private:
   }
 };
 
-RRLIB_UNIT_TESTS_REGISTER_SUITE(tTestTime);
+RRLIB_UNIT_TESTS_REGISTER_SUITE(TestTime);
+
+//----------------------------------------------------------------------
+// End of namespace declaration
+//----------------------------------------------------------------------
+}
+}
