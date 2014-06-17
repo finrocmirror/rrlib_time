@@ -34,7 +34,11 @@
 //----------------------------------------------------------------------
 #include <mutex>
 #include <atomic>
+
+#if __linux__
 #include <time.h>
+#endif
+
 #include <cstring>
 #include <sstream>
 #include <stdexcept>
@@ -278,6 +282,7 @@ tDuration ToSystemDuration(const tDuration& app_duration)
   return tDuration();
 }
 
+#if __linux__
 tTimestamp ParseIsoTimestamp(const std::string& s)
 {
   tm t;
@@ -320,7 +325,9 @@ tTimestamp ParseIsoTimestamp(const std::string& s)
   auto ts2 = std::chrono::system_clock::from_time_t(parsed);
   return ts2 + std::chrono::duration_cast<tDuration>(rest);
 }
+#endif
 
+#if __linux__
 tTimestamp ParseNmeaTimestamp(const std::string& nmea_time, const std::string& nmea_date)
 {
   tm t;
@@ -349,6 +356,7 @@ tTimestamp ParseNmeaTimestamp(const std::string& nmea_time, const std::string& n
   auto ts = std::chrono::system_clock::from_time_t(timegm(&t));
   return ts + std::chrono::duration_cast<tDuration>(rest);
 }
+#endif
 
 std::string ToIsoString(const tTimestamp& timestamp)
 {
@@ -393,6 +401,7 @@ std::string ToIsoString(const tTimestamp& timestamp)
   return std::string(buf) + sub_seconds + time_zone;
 }
 
+#if __linux__
 tDuration ParseIsoDuration(const std::string& s)
 {
   tm t;
@@ -491,7 +500,9 @@ tDuration ParseIsoDuration(const std::string& s)
   time_t parsed = timegm(&t);
   return std::chrono::seconds(parsed) + std::chrono::duration_cast<tDuration>(rest);
 }
+#endif
 
+#if __linux__
 std::string ToIsoString(const tDuration& duration)
 {
   std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>(duration);
@@ -550,6 +561,7 @@ std::string ToIsoString(const tDuration& duration)
   }
   return oss.str();
 }
+#endif
 
 std::string ToString(std::chrono::nanoseconds ns)
 {
@@ -597,6 +609,7 @@ std::string ToString(std::chrono::nanoseconds ns)
   return buf;
 }
 
+#if __linux__
 tTimestamp GetLastFullHour(const tTimestamp &timestamp)
 {
   std::time_t input_time = std::chrono::system_clock::to_time_t(timestamp);
@@ -607,6 +620,7 @@ tTimestamp GetLastFullHour(const tTimestamp &timestamp)
   std::time_t output_time = timegm(&full_hour_time);
   return std::chrono::system_clock::from_time_t(output_time);
 }
+#endif
 
 bool tCustomClock::IsCurrentTimeSource() const
 {

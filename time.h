@@ -148,6 +148,7 @@ void SetTimeStretching(unsigned int numerator, unsigned int denominator);
  */
 tDuration ToSystemDuration(const tDuration& app_duration);
 
+#if __linux__
 /*!
  * Parses timestamp in ISO 8601 string representation
  *
@@ -155,8 +156,10 @@ tDuration ToSystemDuration(const tDuration& app_duration);
  * \return Timestamp
  */
 tTimestamp ParseIsoTimestamp(const std::string& s);
+#endif
 
 
+#if __linux__
 /*!
  * Parses GPS timestamp in NMEA-0183 GPRMC representation
  *
@@ -165,8 +168,9 @@ tTimestamp ParseIsoTimestamp(const std::string& s);
  * \return Timestamp
  */
 tTimestamp ParseNmeaTimestamp(const std::string& nmea_time, const std::string& nmea_date);
+#endif
 
-
+#if __linux__
 /*!
  * Turns Timestamp into string representation following ISO 8601 (or W3C XML Schema 1.0 specification)
  *
@@ -174,7 +178,9 @@ tTimestamp ParseNmeaTimestamp(const std::string& nmea_time, const std::string& n
  * \return ISO 8601 representation of timestamp
  */
 std::string ToIsoString(const tTimestamp& timestamp);
+#endif
 
+#if __linux__
 /*!
  * Parses duration in ISO 8601 string representation
  * (throws exception if string cannot be parsed)
@@ -183,7 +189,9 @@ std::string ToIsoString(const tTimestamp& timestamp);
  * \return Duration
  */
 tDuration ParseIsoDuration(const std::string& s);
+#endif
 
+#if __linux__
 /*!
  * Turns Duration into string representation following ISO 8601 (or W3C XML Schema 1.0 specification)
  *
@@ -191,6 +199,7 @@ tDuration ParseIsoDuration(const std::string& s);
  * \return ISO 8601 representation of duration
  */
 std::string ToIsoString(const tDuration& duration);
+#endif
 
 /*!
  * Turns duration into a simple string (number + unit)
@@ -200,6 +209,7 @@ std::string ToIsoString(const tDuration& duration);
  */
 std::string ToString(std::chrono::nanoseconds ns);
 
+#if __linux__
 /*!
  * Extracts the last full hour from a given timestamp
  *
@@ -207,7 +217,7 @@ std::string ToString(std::chrono::nanoseconds ns);
  * \return timestamp of the last full hour
  */
 tTimestamp GetLastFullHour(const tTimestamp& timestamp);
-
+#endif
 
 namespace internal
 {
