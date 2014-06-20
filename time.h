@@ -56,6 +56,10 @@ namespace time
 //----------------------------------------------------------------------
 // Forward declarations / typedefs / enums
 //----------------------------------------------------------------------
+#if __linux__
+#define RRLIB_TIME_PARSING_AVAILABLE
+#endif
+
 
 /*!
  * Clock that "application time" is derived from
@@ -148,7 +152,7 @@ void SetTimeStretching(unsigned int numerator, unsigned int denominator);
  */
 tDuration ToSystemDuration(const tDuration& app_duration);
 
-#if __linux__
+#ifdef RRLIB_TIME_PARSING_AVAILABLE
 /*!
  * Parses timestamp in ISO 8601 string representation
  *
@@ -159,7 +163,7 @@ tTimestamp ParseIsoTimestamp(const std::string& s);
 #endif
 
 
-#if __linux__
+#ifdef RRLIB_TIME_PARSING_AVAILABLE
 /*!
  * Parses GPS timestamp in NMEA-0183 GPRMC representation
  *
@@ -170,7 +174,6 @@ tTimestamp ParseIsoTimestamp(const std::string& s);
 tTimestamp ParseNmeaTimestamp(const std::string& nmea_time, const std::string& nmea_date);
 #endif
 
-#if __linux__
 /*!
  * Turns Timestamp into string representation following ISO 8601 (or W3C XML Schema 1.0 specification)
  *
@@ -178,9 +181,8 @@ tTimestamp ParseNmeaTimestamp(const std::string& nmea_time, const std::string& n
  * \return ISO 8601 representation of timestamp
  */
 std::string ToIsoString(const tTimestamp& timestamp);
-#endif
 
-#if __linux__
+#ifdef RRLIB_TIME_PARSING_AVAILABLE
 /*!
  * Parses duration in ISO 8601 string representation
  * (throws exception if string cannot be parsed)
@@ -191,7 +193,6 @@ std::string ToIsoString(const tTimestamp& timestamp);
 tDuration ParseIsoDuration(const std::string& s);
 #endif
 
-#if __linux__
 /*!
  * Turns Duration into string representation following ISO 8601 (or W3C XML Schema 1.0 specification)
  *
@@ -199,7 +200,6 @@ tDuration ParseIsoDuration(const std::string& s);
  * \return ISO 8601 representation of duration
  */
 std::string ToIsoString(const tDuration& duration);
-#endif
 
 /*!
  * Turns duration into a simple string (number + unit)

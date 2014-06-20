@@ -282,7 +282,7 @@ tDuration ToSystemDuration(const tDuration& app_duration)
   return tDuration();
 }
 
-#if __linux__
+#ifdef RRLIB_TIME_PARSING_AVAILABLE
 tTimestamp ParseIsoTimestamp(const std::string& s)
 {
   tm t;
@@ -327,7 +327,7 @@ tTimestamp ParseIsoTimestamp(const std::string& s)
 }
 #endif
 
-#if __linux__
+#ifdef RRLIB_TIME_PARSING_AVAILABLE
 tTimestamp ParseNmeaTimestamp(const std::string& nmea_time, const std::string& nmea_date)
 {
   tm t;
@@ -401,7 +401,7 @@ std::string ToIsoString(const tTimestamp& timestamp)
   return std::string(buf) + sub_seconds + time_zone;
 }
 
-#if __linux__
+#ifdef RRLIB_TIME_PARSING_AVAILABLE
 tDuration ParseIsoDuration(const std::string& s)
 {
   tm t;
@@ -502,7 +502,6 @@ tDuration ParseIsoDuration(const std::string& s)
 }
 #endif
 
-#if __linux__
 std::string ToIsoString(const tDuration& duration)
 {
   std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>(duration);
@@ -561,7 +560,6 @@ std::string ToIsoString(const tDuration& duration)
   }
   return oss.str();
 }
-#endif
 
 std::string ToString(std::chrono::nanoseconds ns)
 {
