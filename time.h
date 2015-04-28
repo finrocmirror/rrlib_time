@@ -56,7 +56,7 @@ namespace time
 //----------------------------------------------------------------------
 // Forward declarations / typedefs / enums
 //----------------------------------------------------------------------
-#if __linux__
+#if __linux__ || __CYGWIN__
 #define RRLIB_TIME_PARSING_AVAILABLE
 #endif
 
